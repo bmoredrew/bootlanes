@@ -267,7 +267,22 @@ export default function Home() {
     <div className="min-h-screen bg-[var(--background)] p-6 font-mono text-sm text-[var(--foreground)] md:p-8">
       {/* Header */}
       <header className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold">BootLanes</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold">BootLanes</h1>
+          <a
+            href="https://buymeacoffee.com/bmoredrew"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1 text-xs text-[var(--muted)] hover:text-[var(--accent)]"
+          >
+            <img
+              src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
+              alt="Buy me a coffee"
+              className="h-4 w-4"
+            />
+            <span>Buy me a coffee</span>
+          </a>
+        </div>
         <div className="flex gap-2">
           <button
             onClick={() => setDarkMode(!darkMode)}
