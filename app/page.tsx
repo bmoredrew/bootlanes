@@ -812,8 +812,22 @@ function HomeContent() {
                       <span>✨</span>
                       <span>AI Style Insights</span>
                     </h3>
-                    <div className="prose prose-sm max-w-none text-[var(--foreground)] [&_strong]:text-[var(--accent)] [&_ul]:list-disc [&_ul]:pl-5 [&_li]:mb-1">
-                      <ReactMarkdown>{aiInsights}</ReactMarkdown>
+                    <div className="space-y-3 text-sm text-[var(--foreground)]">
+                      <ReactMarkdown
+                        components={{
+                          h1: ({ children }) => <h1 className="text-lg font-bold mb-2 text-[var(--accent)]">{children}</h1>,
+                          h2: ({ children }) => <h2 className="text-base font-bold mb-2 text-[var(--accent)]">{children}</h2>,
+                          h3: ({ children }) => <h3 className="text-sm font-bold mb-1 text-[var(--accent)]">{children}</h3>,
+                          p: ({ children }) => <p className="mb-3 leading-relaxed">{children}</p>,
+                          ul: ({ children }) => <ul className="list-disc pl-5 mb-3 space-y-1">{children}</ul>,
+                          ol: ({ children }) => <ol className="list-decimal pl-5 mb-3 space-y-1">{children}</ol>,
+                          li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+                          strong: ({ children }) => <strong className="font-semibold text-[var(--accent)]">{children}</strong>,
+                          em: ({ children }) => <em className="italic">{children}</em>,
+                        }}
+                      >
+                        {aiInsights}
+                      </ReactMarkdown>
                     </div>
                   </div>
                 )}
