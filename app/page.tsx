@@ -141,6 +141,7 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const [darkMode, setDarkMode] = useState(true); // Default dark
+  const [expandedBoots, setExpandedBoots] = useState<Set<string>>(new Set());
 
   // ----------------------------------------
   // Initialize from URL on mount
@@ -275,10 +276,13 @@ export default function Home() {
   // Handlers: Boots CRUD
   // ----------------------------------------
   const addBoot = () => {
+    const newBoot = createEmptyBoot();
     setProfile((prev) => ({
       ...prev,
-      items: [...prev.items, createEmptyBoot()],
+      items: [...prev.items, newBoot],
     }));
+    // Auto-expand new boot
+    setExpandedBoots((prev) => new Set(prev).add(newBoot.id));
   };
 
   const removeBoot = (id: string) => {
@@ -286,6 +290,24 @@ export default function Home() {
       ...prev,
       items: prev.items.filter((item) => item.id !== id),
     }));
+    // Clean up expanded state
+    setExpandedBoots((prev) => {
+      const next = new Set(prev);
+      next.delete(id);
+      return next;
+    });
+  };
+
+  const toggleBootExpanded = (id: string) => {
+    setExpandedBoots((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
   };
 
   const updateBoot = (id: string, updates: Partial<WardrobeItem>) => {
@@ -488,207 +510,227 @@ export default function Home() {
               <p className="text-[var(--muted)]">No boots added yet.</p>
             ) : (
               <div className="space-y-4">
-                {profile.items.map((boot, index) => (
-                  <div
-                    key={boot.id}
-                    className="rounded border border-[var(--border)] bg-[var(--surface)] p-4"
-                  >
-                    {/* Boot Header */}
-                    <div className="mb-3 flex items-center justify-between">
-                      <span className="text-xs text-[var(--muted)]">Boot #{index + 1}</span>
-                      <button
-                        onClick={() => removeBoot(boot.id)}
-                        className="text-xs text-red-500 hover:text-red-400"
+                {profile.items.map((boot, index) => {
+                  const isExpanded = expandedBoots.has(boot.id);
+                  const bootSummary = boot.displayName || `${formatLabel(boot.attributes.color)} ${formatLabel(boot.attributes.leatherType)}`;
+                  return (
+                    <div
+                      key={boot.id}
+                      className="rounded border border-[var(--border)] bg-[var(--surface)] overflow-hidden"
+                    >
+                      {/* Boot Header - Clickable */}
+                      <div
+                        className="flex items-center justify-between p-4 cursor-pointer hover:bg-[var(--surface-alt)] transition"
+                        onClick={() => toggleBootExpanded(boot.id)}
                       >
-                        Remove
-                      </button>
-                    </div>
-
-                    {/* Display Name */}
-                    <div className="mb-3">
-                      <input
-                        type="text"
-                        placeholder="Display name (optional)"
-                        value={boot.displayName || ""}
-                        onChange={(e) =>
-                          updateBoot(boot.id, { displayName: e.target.value })
-                        }
-                        className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-sm text-[var(--foreground)] placeholder-[var(--muted)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
-                      />
-                    </div>
-
-                    {/* Attributes Grid */}
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                      {/* Color */}
-                      <div>
-                        <label className="mb-1 block text-xs text-[var(--muted)]">Color</label>
-                        <select
-                          value={boot.attributes.color}
-                          onChange={(e) =>
-                            updateBootAttribute(boot.id, "color", e.target.value)
-                          }
-                          className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
+                        <div className="flex items-center gap-3">
+                          <span className="text-[var(--muted)]">{isExpanded ? "▼" : "▶"}</span>
+                          <div>
+                            <span className="text-xs text-[var(--muted)]">Boot #{index + 1}</span>
+                            {!isExpanded && (
+                              <p className="text-sm text-[var(--foreground)]">{bootSummary}</p>
+                            )}
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); removeBoot(boot.id); }}
+                          className="text-xs text-red-500 hover:text-red-400"
                         >
-                          {BOOT_COLORS.map((c) => (
-                            <option key={c} value={c}>
-                              {formatLabel(c)}
-                            </option>
-                          ))}
-                        </select>
+                          Remove
+                        </button>
                       </div>
 
-                      {/* Leather Type */}
-                      <div>
-                        <label className="mb-1 block text-xs text-[var(--muted)]">Leather</label>
-                        <select
-                          value={boot.attributes.leatherType}
-                          onChange={(e) =>
-                            updateBootAttribute(boot.id, "leatherType", e.target.value)
-                          }
-                          className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
-                        >
-                          {LEATHER_TYPES.map((l) => (
-                            <option key={l} value={l}>
-                              {formatLabel(l)}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                      {/* Expanded Content */}
+                      {isExpanded && (
+                        <div className="px-4 pb-4">
+                          {/* Display Name */}
+                          <div className="mb-3">
+                            <input
+                              type="text"
+                              placeholder="Display name (optional)"
+                              value={boot.displayName || ""}
+                              onChange={(e) =>
+                                updateBoot(boot.id, { displayName: e.target.value })
+                              }
+                              className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-sm text-[var(--foreground)] placeholder-[var(--muted)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
+                            />
+                          </div>
 
-                      {/* Secondary Color (Two-tone) */}
-                      <div>
-                        <label className="mb-1 block text-xs text-[var(--muted)]">2nd Color</label>
-                        <select
-                          value={boot.attributes.secondaryColor ?? ""}
-                          onChange={(e) =>
-                            updateBootAttribute(boot.id, "secondaryColor", e.target.value || undefined)
-                          }
-                          className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
-                        >
-                          <option value="">None</option>
-                          {BOOT_COLORS.map((c) => (
-                            <option key={c} value={c}>
-                              {formatLabel(c)}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
+                          {/* Attributes Grid */}
+                          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                            {/* Color */}
+                            <div>
+                              <label className="mb-1 block text-xs text-[var(--muted)]">Color</label>
+                              <select
+                                value={boot.attributes.color}
+                                onChange={(e) =>
+                                  updateBootAttribute(boot.id, "color", e.target.value)
+                                }
+                                className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
+                              >
+                                {BOOT_COLORS.map((c) => (
+                                  <option key={c} value={c}>
+                                    {formatLabel(c)}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
 
-                      {/* Secondary Leather (Two-tone) - only show if 2nd color selected */}
-                      {boot.attributes.secondaryColor && (
-                        <div>
-                          <label className="mb-1 block text-xs text-[var(--muted)]">2nd Leather</label>
-                          <select
-                            value={boot.attributes.secondaryLeatherType ?? ""}
-                            onChange={(e) =>
-                              updateBootAttribute(boot.id, "secondaryLeatherType", e.target.value || undefined)
-                            }
-                            className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
-                          >
-                            <option value="">None</option>
-                            {LEATHER_TYPES.map((l) => (
-                              <option key={l} value={l}>
-                                {formatLabel(l)}
-                              </option>
-                            ))}
-                          </select>
+                            {/* Leather Type */}
+                            <div>
+                              <label className="mb-1 block text-xs text-[var(--muted)]">Leather</label>
+                              <select
+                                value={boot.attributes.leatherType}
+                                onChange={(e) =>
+                                  updateBootAttribute(boot.id, "leatherType", e.target.value)
+                                }
+                                className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
+                              >
+                                {LEATHER_TYPES.map((l) => (
+                                  <option key={l} value={l}>
+                                    {formatLabel(l)}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* Secondary Color (Two-tone) */}
+                            <div>
+                              <label className="mb-1 block text-xs text-[var(--muted)]">2nd Color</label>
+                              <select
+                                value={boot.attributes.secondaryColor ?? ""}
+                                onChange={(e) =>
+                                  updateBootAttribute(boot.id, "secondaryColor", e.target.value || undefined)
+                                }
+                                className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
+                              >
+                                <option value="">None</option>
+                                {BOOT_COLORS.map((c) => (
+                                  <option key={c} value={c}>
+                                    {formatLabel(c)}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* Secondary Leather (Two-tone) - only show if 2nd color selected */}
+                            {boot.attributes.secondaryColor && (
+                              <div>
+                                <label className="mb-1 block text-xs text-[var(--muted)]">2nd Leather</label>
+                                <select
+                                  value={boot.attributes.secondaryLeatherType ?? ""}
+                                  onChange={(e) =>
+                                    updateBootAttribute(boot.id, "secondaryLeatherType", e.target.value || undefined)
+                                  }
+                                  className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
+                                >
+                                  <option value="">None</option>
+                                  {LEATHER_TYPES.map((l) => (
+                                    <option key={l} value={l}>
+                                      {formatLabel(l)}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+
+                            {/* Sole Type */}
+                            <div>
+                              <label className="mb-1 block text-xs text-[var(--muted)]">Sole</label>
+                              <select
+                                value={boot.attributes.soleType}
+                                onChange={(e) =>
+                                  updateBootAttribute(boot.id, "soleType", e.target.value)
+                                }
+                                className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
+                              >
+                                {SOLE_TYPES.map((s) => (
+                                  <option key={s} value={s}>
+                                    {formatLabel(s)}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* Height */}
+                            <div>
+                              <label className="mb-1 block text-xs text-[var(--muted)]">Height</label>
+                              <select
+                                value={boot.attributes.height}
+                                onChange={(e) =>
+                                  updateBootAttribute(boot.id, "height", e.target.value)
+                                }
+                                className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
+                              >
+                                <option value="low">Low (4-5&quot;)</option>
+                                <option value="mid">Mid (6&quot;)</option>
+                                <option value="tall">Tall (8-10&quot;)</option>
+                              </select>
+                            </div>
+
+                            {/* Weight */}
+                            <div>
+                              <label className="mb-1 block text-xs text-[var(--muted)]">Weight</label>
+                              <select
+                                value={boot.attributes.weight}
+                                onChange={(e) =>
+                                  updateBootAttribute(boot.id, "weight", e.target.value)
+                                }
+                                className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
+                              >
+                                {WEIGHTS.map((w) => (
+                                  <option key={w} value={w}>
+                                    {formatLabel(w)}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+
+                            {/* Formality */}
+                            <div>
+                              <label className="mb-1 block text-xs text-[var(--muted)]">
+                                Formality
+                              </label>
+                              <select
+                                value={boot.attributes.formality}
+                                onChange={(e) =>
+                                  updateBootAttribute(boot.id, "formality", parseInt(e.target.value))
+                                }
+                                className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
+                              >
+                                <option value={1}>1 — Work / Rugged</option>
+                                <option value={2}>2 — Heritage Rugged</option>
+                                <option value={3}>3 — Neutral Everyday</option>
+                                <option value={4}>4 — Refined Casual</option>
+                                <option value={5}>5 — Dress-leaning</option>
+                              </select>
+                            </div>
+                          </div>
+
+                          {/* Rotation */}
+                          <div className="mt-3">
+                            <label className="mb-1 block text-xs text-[var(--muted)]">Rotation</label>
+                            <div className="flex gap-4">
+                              {ROTATIONS.map((r) => (
+                                <label key={r} className="flex cursor-pointer items-center gap-1.5">
+                                  <input
+                                    type="radio"
+                                    name={`rotation-${boot.id}`}
+                                    value={r}
+                                    checked={boot.rotation === r}
+                                    onChange={() => updateBoot(boot.id, { rotation: r })}
+                                    className="accent-[var(--accent)]"
+                                  />
+                                  <span className="text-xs text-[var(--foreground)]">{formatLabel(r)}</span>
+                                </label>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       )}
-
-                      {/* Sole Type */}
-                      <div>
-                        <label className="mb-1 block text-xs text-[var(--muted)]">Sole</label>
-                        <select
-                          value={boot.attributes.soleType}
-                          onChange={(e) =>
-                            updateBootAttribute(boot.id, "soleType", e.target.value)
-                          }
-                          className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
-                        >
-                          {SOLE_TYPES.map((s) => (
-                            <option key={s} value={s}>
-                              {formatLabel(s)}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Height */}
-                      <div>
-                        <label className="mb-1 block text-xs text-[var(--muted)]">Height</label>
-                        <select
-                          value={boot.attributes.height}
-                          onChange={(e) =>
-                            updateBootAttribute(boot.id, "height", e.target.value)
-                          }
-                          className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
-                        >
-                          <option value="low">Low (4-5&quot;)</option>
-                          <option value="mid">Mid (6&quot;)</option>
-                          <option value="tall">Tall (8-10&quot;)</option>
-                        </select>
-                      </div>
-
-                      {/* Weight */}
-                      <div>
-                        <label className="mb-1 block text-xs text-[var(--muted)]">Weight</label>
-                        <select
-                          value={boot.attributes.weight}
-                          onChange={(e) =>
-                            updateBootAttribute(boot.id, "weight", e.target.value)
-                          }
-                          className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
-                        >
-                          {WEIGHTS.map((w) => (
-                            <option key={w} value={w}>
-                              {formatLabel(w)}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-
-                      {/* Formality */}
-                      <div>
-                        <label className="mb-1 block text-xs text-[var(--muted)]">
-                          Formality
-                        </label>
-                        <select
-                          value={boot.attributes.formality}
-                          onChange={(e) =>
-                            updateBootAttribute(boot.id, "formality", parseInt(e.target.value))
-                          }
-                          className="w-full rounded bg-[var(--surface-alt)] px-2 py-1.5 text-xs text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--border)]"
-                        >
-                          <option value={1}>1 — Work / Rugged</option>
-                          <option value={2}>2 — Heritage Rugged</option>
-                          <option value={3}>3 — Neutral Everyday</option>
-                          <option value={4}>4 — Refined Casual</option>
-                          <option value={5}>5 — Dress-leaning</option>
-                        </select>
-                      </div>
                     </div>
-
-                    {/* Rotation */}
-                    <div className="mt-3">
-                      <label className="mb-1 block text-xs text-[var(--muted)]">Rotation</label>
-                      <div className="flex gap-4">
-                        {ROTATIONS.map((r) => (
-                          <label key={r} className="flex cursor-pointer items-center gap-1.5">
-                            <input
-                              type="radio"
-                              name={`rotation-${boot.id}`}
-                              value={r}
-                              checked={boot.rotation === r}
-                              onChange={() => updateBoot(boot.id, { rotation: r })}
-                              className="accent-[var(--accent)]"
-                            />
-                            <span className="text-xs text-[var(--foreground)]">{formatLabel(r)}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </section>
