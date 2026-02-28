@@ -51,6 +51,7 @@ export default function Home() {
   const [initialized, setInitialized] = useState(false);
   const [darkMode, setDarkMode] = useState(true); // Default dark
   const [expandedBoots, setExpandedBoots] = useState<Set<string>>(new Set());
+  const [showPairings, setShowPairings] = useState(false);
 
   // ----------------------------------------
   // Initialize from URL on mount
@@ -730,35 +731,43 @@ export default function Home() {
               {/* Pairings */}
               {profile.items.length > 0 && (
                 <section>
-                  <h3 className="mb-3 text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+                  <label className="mb-3 flex cursor-pointer items-center gap-2 text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+                    <input
+                      type="checkbox"
+                      checked={showPairings}
+                      onChange={(e) => setShowPairings(e.target.checked)}
+                      className="h-3.5 w-3.5 rounded border-[var(--border)] accent-[var(--accent)]"
+                    />
                     Pairing Ideas
-                  </h3>
-                  <div className="space-y-3">
-                    {getAllPairings(profile.items).map((pairing) => (
-                      <div
-                        key={pairing.bootId}
-                        className="rounded border border-[var(--border)] bg-[var(--surface)] p-3"
-                      >
-                        <p className="mb-2 text-sm font-medium text-[var(--foreground)]">
-                          {pairing.bootName}
-                        </p>
-                        <div className="space-y-1 text-xs">
-                          <p>
-                            <span className="text-[var(--muted)]">Tops: </span>
-                            <span className="text-[var(--foreground)]">
-                              {pairing.tops.map(formatLabel).join(", ")}
-                            </span>
+                  </label>
+                  {showPairings && (
+                    <div className="space-y-3">
+                      {getAllPairings(profile.items).map((pairing) => (
+                        <div
+                          key={pairing.bootId}
+                          className="rounded border border-[var(--border)] bg-[var(--surface)] p-3"
+                        >
+                          <p className="mb-2 text-sm font-medium text-[var(--foreground)]">
+                            {pairing.bootName}
                           </p>
-                          <p>
-                            <span className="text-[var(--muted)]">Bottoms: </span>
-                            <span className="text-[var(--foreground)]">
-                              {pairing.bottoms.map(formatLabel).join(", ")}
-                            </span>
-                          </p>
+                          <div className="space-y-1 text-xs">
+                            <p>
+                              <span className="text-[var(--muted)]">Tops: </span>
+                              <span className="text-[var(--foreground)]">
+                                {pairing.tops.map(formatLabel).join(", ")}
+                              </span>
+                            </p>
+                            <p>
+                              <span className="text-[var(--muted)]">Bottoms: </span>
+                              <span className="text-[var(--foreground)]">
+                                {pairing.bottoms.map(formatLabel).join(", ")}
+                              </span>
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </section>
               )}
             </div>
