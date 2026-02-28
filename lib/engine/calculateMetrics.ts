@@ -93,10 +93,10 @@ export function calculateMetrics(profile: Profile): ProfileMetrics {
     const { items } = profile;
 
     const bootColors: BootColor[] = [
-        "black", "dark_brown", "mid_brown", "light_tan", "burgundy", "grey", "other"
+        "black", "dark_brown", "brown", "mid_brown", "light_tan", "natural", "burgundy", "grey", "other"
     ];
     const heights: Height[] = ["low", "mid", "tall"];
-    const soleTypes: SoleType[] = ["heavy_lug", "mid_lug", "wedge", "leather_minimal"];
+    const soleTypes: SoleType[] = ["heavy_lug", "mid_lug", "vbar", "wedge", "leather_minimal"];
 
     const colorDistribution = calculateDistribution(
         items,

@@ -29,8 +29,10 @@ export type BottomType =
 export type BootColor =
   | "black"
   | "dark_brown"
+  | "brown"
   | "mid_brown"
   | "light_tan"
+  | "natural"
   | "burgundy"
   | "grey"
   | "other";
@@ -45,6 +47,7 @@ export type LeatherType =
 export type SoleType =
   | "heavy_lug"
   | "mid_lug"
+  | "vbar"
   | "wedge"
   | "leather_minimal";
 
@@ -55,6 +58,10 @@ export type Rotation = "core" | "regular" | "occasional";
 export interface BootAttributes {
   color: BootColor;
   leatherType: LeatherType;
+  /** Optional secondary color for two-tone boots */
+  secondaryColor?: BootColor;
+  /** Optional secondary leather type for two-tone boots */
+  secondaryLeatherType?: LeatherType;
   soleType: SoleType;
   height: Height;
   weight: Weight;

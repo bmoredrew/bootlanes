@@ -29,9 +29,11 @@ export const ENVIRONMENT_FORMALITY_RANGES: Record<Environment, [number, number]>
 // ============================================
 export const COLOR_ADJACENCY: Record<BootColor, BootColor[]> = {
     black: ["dark_brown", "burgundy", "grey"],
-    dark_brown: ["black", "mid_brown", "burgundy"],
-    mid_brown: ["dark_brown", "light_tan"],
-    light_tan: ["mid_brown"],
+    dark_brown: ["black", "brown", "burgundy"],
+    brown: ["dark_brown", "mid_brown"],
+    mid_brown: ["brown", "light_tan"],
+    light_tan: ["mid_brown", "natural"],
+    natural: ["light_tan"],
     burgundy: ["black", "dark_brown"],
     grey: ["black"],
     other: [],
@@ -41,8 +43,10 @@ export const COLOR_ADJACENCY: Record<BootColor, BootColor[]> = {
 export const COLOR_ORDER: BootColor[] = [
     "black",
     "dark_brown",
+    "brown",
     "mid_brown",
     "light_tan",
+    "natural",
 ];
 
 // ============================================
@@ -63,21 +67,23 @@ export const HEIGHT_ORDER: Height[] = ["tall", "mid", "low"];
 // ============================================
 export const SOLE_ADJACENCY: Record<SoleType, SoleType[]> = {
     heavy_lug: ["mid_lug"],
-    mid_lug: ["heavy_lug", "wedge"],
-    wedge: ["mid_lug", "leather_minimal"],
+    mid_lug: ["heavy_lug", "vbar"],
+    vbar: ["mid_lug", "wedge"],
+    wedge: ["vbar", "leather_minimal"],
     leather_minimal: ["wedge"],
 };
 
 export const SOLE_ORDER: SoleType[] = [
     "heavy_lug",
     "mid_lug",
+    "vbar",
     "wedge",
     "leather_minimal",
 ];
 
 // ============================================
 // Formality Scale
-// 1 = rugged, 5 = refined
+// 1 = Work/Rugged, 2 = Heritage Rugged, 3 = Neutral Everyday, 4 = Refined Casual, 5 = Dress-leaning
 // Bridge may only move ±1
 // ============================================
 export const FORMALITY_MIN = 1;

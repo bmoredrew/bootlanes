@@ -34,8 +34,10 @@ function buildIdentity(profile: Profile, metrics: ProfileMetrics): string {
         const colorLabels: Record<string, string> = {
             black: "with dark foundation",
             dark_brown: "with heritage browns",
+            brown: "with classic brown tones",
             mid_brown: "with versatile mid-tones",
             light_tan: "with light casual tones",
+            natural: "with natural undyed leather",
             burgundy: "with distinctive burgundy accent",
             grey: "with neutral grey base",
         };
@@ -46,12 +48,16 @@ function buildIdentity(profile: Profile, metrics: ProfileMetrics): string {
 
     // Formality character
     const avgFormality = metrics.weightedAverageFormality;
-    if (avgFormality <= 2) {
-        parts.push("emphasizing rugged utility");
-    } else if (avgFormality >= 4) {
-        parts.push("leaning refined");
+    if (avgFormality <= 1.5) {
+        parts.push("emphasizing work/rugged utility");
+    } else if (avgFormality <= 2.5) {
+        parts.push("with heritage rugged character");
+    } else if (avgFormality <= 3.5) {
+        parts.push("balanced for everyday versatility");
+    } else if (avgFormality <= 4.5) {
+        parts.push("leaning refined casual");
     } else {
-        parts.push("balanced across formality");
+        parts.push("dress-leaning refined");
     }
 
     // Collection size descriptor
