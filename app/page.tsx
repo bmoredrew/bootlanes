@@ -5,6 +5,17 @@ import { useState, useEffect } from "react";
 import { analyzeProfile } from "@/lib/engine/analyzeProfile";
 import { encodeProfile } from "@/lib/utils/encodeProfile";
 import { decodeProfile, createEmptyProfile } from "@/lib/utils/decodeProfile";
+import {
+  ENVIRONMENTS,
+  TOP_COLORS,
+  BOTTOM_TYPES,
+  BOOT_COLORS,
+  LEATHER_TYPES,
+  SOLE_TYPES,
+  HEIGHTS,
+  WEIGHTS,
+  ROTATIONS,
+} from "@/lib/schema/types";
 import type {
   Profile,
   WardrobeItem,
@@ -20,70 +31,6 @@ import type {
 } from "@/lib/schema/types";
 import type { AnalysisResult } from "@/lib/engine/types";
 import { CURRENT_PROFILE_VERSION } from "@/lib/schema/constants";
-
-// ============================================
-// Enum Arrays for Form Controls
-// ============================================
-const ENVIRONMENTS: Environment[] = [
-  "rugged_heritage",
-  "workwear_trades",
-  "business_casual",
-  "creative_casual",
-  "executive_formal",
-  "mixed",
-];
-
-const TOP_COLORS: TopColor[] = [
-  "white",
-  "black",
-  "navy",
-  "olive",
-  "grey",
-  "earth_tones",
-  "patterned",
-];
-
-const BOTTOM_TYPES: BottomType[] = [
-  "dark_denim",
-  "black_denim",
-  "olive",
-  "khaki",
-  "tailored_trousers",
-  "raw_denim",
-  "work_pants",
-];
-
-const BOOT_COLORS: BootColor[] = [
-  "black",
-  "dark_brown",
-  "brown",
-  "mid_brown",
-  "light_tan",
-  "natural",
-  "burgundy",
-  "grey",
-  "other",
-];
-
-const LEATHER_TYPES: LeatherType[] = [
-  "smooth",
-  "roughout",
-  "suede",
-  "waxed_flesh",
-  "other",
-];
-
-const SOLE_TYPES: SoleType[] = [
-  "heavy_lug",
-  "mid_lug",
-  "vbar",
-  "wedge",
-  "leather_minimal",
-];
-
-const HEIGHTS: Height[] = ["low", "mid", "tall"];
-const WEIGHTS: Weight[] = ["light", "medium", "heavy"];
-const ROTATIONS: Rotation[] = ["core", "regular", "occasional"];
 
 // ============================================
 // Utility: Format enum values for display

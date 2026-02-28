@@ -1,6 +1,7 @@
 // lib/engine/calculateMetrics.ts
 
 import type { Profile, WardrobeItem, BootColor, Height, SoleType } from "../schema/types";
+import { BOOT_COLORS, HEIGHTS, SOLE_TYPES } from "../schema/types";
 import { ROTATION_WEIGHTS } from "../schema/constants";
 
 export interface WeightedDistribution<T extends string> {
@@ -92,28 +93,22 @@ function calculateWeightedFormality(items: WardrobeItem[]): number {
 export function calculateMetrics(profile: Profile): ProfileMetrics {
     const { items } = profile;
 
-    const bootColors: BootColor[] = [
-        "black", "dark_brown", "brown", "mid_brown", "light_tan", "natural", "burgundy", "grey", "other"
-    ];
-    const heights: Height[] = ["low", "mid", "tall"];
-    const soleTypes: SoleType[] = ["heavy_lug", "mid_lug", "vbar", "wedge", "leather_minimal"];
-
     const colorDistribution = calculateDistribution(
         items,
         (item) => item.attributes.color,
-        bootColors
+        BOOT_COLORS
     );
 
     const heightDistribution = calculateDistribution(
         items,
         (item) => item.attributes.height,
-        heights
+        HEIGHTS
     );
 
     const soleDistribution = calculateDistribution(
         items,
         (item) => item.attributes.soleType,
-        soleTypes
+        SOLE_TYPES
     );
 
     const weightedAverageFormality = calculateWeightedFormality(items);
