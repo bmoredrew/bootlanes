@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { analyzeProfile } from "@/lib/engine/analyzeProfile";
 import { getAllPairings } from "@/lib/engine/getPairings";
 import { encodeProfile } from "@/lib/utils/encodeProfile";
@@ -37,7 +37,7 @@ import type { AnalysisResult } from "@/lib/engine/types";
 // ============================================
 // Main Component
 // ============================================
-export default function Home() {
+function HomeContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -794,5 +794,22 @@ export default function Home() {
         </div>
       </div>
     </div>
+  );
+}
+
+// ============================================
+// Suspense Wrapper
+// ============================================
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[var(--background)] p-6 font-mono text-sm text-[var(--foreground)] md:p-8">
+        <div className="flex items-center justify-center min-h-screen">
+          <p className="text-[var(--muted)]">Loading...</p>
+        </div>
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
   );
 }
