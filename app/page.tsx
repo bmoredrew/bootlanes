@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { analyzeProfile } from "@/lib/engine/analyzeProfile";
 import { encodeProfile } from "@/lib/utils/encodeProfile";
 import { decodeProfile, createEmptyProfile } from "@/lib/utils/decodeProfile";
+import { formatLabel } from "@/lib/utils/formatLabel";
+import { createEmptyBoot } from "@/lib/utils/createEmptyBoot";
 import {
   ENVIRONMENTS,
   TOP_COLORS,
@@ -30,47 +32,6 @@ import type {
   Rotation,
 } from "@/lib/schema/types";
 import type { AnalysisResult } from "@/lib/engine/types";
-import { CURRENT_PROFILE_VERSION } from "@/lib/schema/constants";
-
-// ============================================
-// Utility: Format enum values for display
-// ============================================
-function formatLabel(value: string): string {
-  return value
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
-
-// ============================================
-// Utility: Generate stable ID
-// ============================================
-function generateId(): string {
-  if (typeof crypto !== "undefined" && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return `boot-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
-
-// ============================================
-// Utility: Create empty boot
-// ============================================
-function createEmptyBoot(): WardrobeItem {
-  return {
-    id: generateId(),
-    displayName: "",
-    category: "boots",
-    attributes: {
-      color: "black",
-      leatherType: "smooth",
-      soleType: "mid_lug",
-      height: "mid",
-      weight: "medium",
-      formality: 3,
-    },
-    rotation: "core",
-  };
-}
 
 // ============================================
 // Main Component
@@ -701,24 +662,24 @@ export default function Home() {
         <div>
           {analysisResult ? (
             <div className="sticky top-8 space-y-6">
-              <h2 className="text-lg font-semibold text-zinc-300">Analysis</h2>
+              <h2 className="text-lg font-semibold text-[var(--foreground)]">Analysis</h2>
 
               {/* Identity */}
               <section>
-                <h3 className="mb-1 text-xs font-medium uppercase tracking-wide text-zinc-500">
+                <h3 className="mb-1 text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
                   Identity
                 </h3>
-                <p className="text-lg text-white">{analysisResult.identity}</p>
+                <p className="text-lg text-[var(--foreground)]">{analysisResult.identity}</p>
               </section>
 
               {/* Structure */}
               <section>
-                <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">
+                <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
                   Structure
                 </h3>
                 <ul className="space-y-1">
                   {analysisResult.structure.map((line, i) => (
-                    <li key={i} className="text-zinc-300">
+                    <li key={i} className="text-[var(--foreground)]">
                       {line}
                     </li>
                   ))}
@@ -727,51 +688,46 @@ export default function Home() {
 
               {/* Observations */}
               <section>
-                <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">
+                <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
                   Observations
                 </h3>
                 {analysisResult.observations.length > 0 ? (
                   <ul className="space-y-1">
                     {analysisResult.observations.map((obs, i) => (
-                      <li key={i} className="text-zinc-400">
+                      <li key={i} className="text-[var(--muted)]">
                         • {obs}
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-zinc-500">No notable observations.</p>
+                  <p className="text-[var(--muted)]">No notable observations.</p>
                 )}
               </section>
 
               {/* Suggestion */}
-              <section className="rounded border border-zinc-700 bg-zinc-800/50 p-4">
-                <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">
+              <section className="rounded border border-[var(--border)] bg-[var(--surface-alt)] p-4">
+                <h3 className="mb-2 text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
                   Suggestion
                 </h3>
                 <p className="mb-1 text-xs">
-                  <span className="text-zinc-500">Type: </span>
+                  <span className="text-[var(--muted)]">Type: </span>
                   <span
                     className={
                       analysisResult.suggestion.type === "none"
-                        ? "text-emerald-400"
+                        ? "text-emerald-500"
                         : analysisResult.suggestion.type === "consolidate"
-                          ? "text-amber-400"
-                          : "text-blue-400"
+                          ? "text-amber-500"
+                          : "text-blue-500"
                     }
                   >
                     {analysisResult.suggestion.type}
                   </span>
                 </p>
-                <p className="text-zinc-200">{analysisResult.suggestion.message}</p>
-                {analysisResult.suggestion.lane && (
-                  <div className="mt-2 rounded bg-zinc-900 p-2 text-xs text-zinc-400">
-                    Lane: {JSON.stringify(analysisResult.suggestion.lane)}
-                  </div>
-                )}
+                <p className="text-[var(--foreground)]">{analysisResult.suggestion.message}</p>
               </section>
             </div>
           ) : (
-            <div className="flex h-64 items-center justify-center rounded border border-dashed border-zinc-700 text-zinc-500">
+            <div className="flex h-64 items-center justify-center rounded border border-dashed border-[var(--border)] text-[var(--muted)]">
               <p>Add boots and click &quot;Analyze Profile&quot; to see results.</p>
             </div>
           )}

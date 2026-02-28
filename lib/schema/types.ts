@@ -25,10 +25,10 @@ export const TOP_COLORS = [
 export const BOTTOM_TYPES = [
   "dark_denim",
   "black_denim",
-  "olive",
+  "raw_denim",
+  "earth_tones",
   "khaki",
   "tailored_trousers",
-  "raw_denim",
   "work_pants",
 ] as const;
 
