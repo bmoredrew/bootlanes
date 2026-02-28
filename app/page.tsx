@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
+import ReactMarkdown from "react-markdown";
 import { analyzeProfile } from "@/lib/engine/analyzeProfile";
 import { getAllPairings } from "@/lib/engine/getPairings";
 import { encodeProfile } from "@/lib/utils/encodeProfile";
@@ -52,6 +53,9 @@ function HomeContent() {
   const [darkMode, setDarkMode] = useState(true); // Default dark
   const [expandedBoots, setExpandedBoots] = useState<Set<string>>(new Set());
   const [showPairings, setShowPairings] = useState(false);
+  const [aiInsights, setAiInsights] = useState<string>("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
 
   // ----------------------------------------
   // Initialize from URL on mount
@@ -118,6 +122,45 @@ function HomeContent() {
     }
     const result = analyzeProfile(profile);
     setAnalysisResult(result);
+  };
+
+  const handleAiAnalyze = async () => {
+    if (!analysisResult) return;
+
+    setAiLoading(true);
+    setAiError(null);
+    setAiInsights("");
+
+    try {
+      const response = await fetch("/api/ai-analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          profile,
+          analysis: analysisResult,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to get AI insights");
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+
+      if (!reader) throw new Error("No response body");
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const text = decoder.decode(value);
+        setAiInsights((prev) => prev + text);
+      }
+    } catch (error) {
+      setAiError(error instanceof Error ? error.message : "Failed to get AI insights");
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   // ----------------------------------------
@@ -741,6 +784,45 @@ function HomeContent() {
                   </span>
                 </p>
                 <p className="text-[var(--foreground)]">{analysisResult.suggestion.message}</p>
+              </section>
+
+              {/* AI Insights */}
+              <section>
+                {!aiInsights && !aiLoading && (
+                  <button
+                    onClick={handleAiAnalyze}
+                    className="w-full rounded border-2 border-dashed border-[var(--accent)] bg-[var(--surface)] px-4 py-3 text-sm font-medium text-[var(--accent)] transition hover:bg-[var(--accent)] hover:text-white"
+                  >
+                    ✨ Get AI Style Insights
+                  </button>
+                )}
+
+                {aiLoading && (
+                  <div className="rounded border border-[var(--border)] bg-[var(--surface-alt)] p-4">
+                    <div className="flex items-center gap-2 text-[var(--muted)]">
+                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent"></div>
+                      <span className="text-xs">Generating AI insights...</span>
+                    </div>
+                  </div>
+                )}
+
+                {aiInsights && (
+                  <div className="rounded border border-[var(--accent)]/20 bg-[var(--surface-alt)] p-4">
+                    <h3 className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-[var(--accent)]">
+                      <span>✨</span>
+                      <span>AI Style Insights</span>
+                    </h3>
+                    <div className="prose prose-sm max-w-none text-[var(--foreground)] [&_strong]:text-[var(--accent)] [&_ul]:list-disc [&_ul]:pl-5 [&_li]:mb-1">
+                      <ReactMarkdown>{aiInsights}</ReactMarkdown>
+                    </div>
+                  </div>
+                )}
+
+                {aiError && (
+                  <div className="rounded border border-red-700 bg-red-900/20 p-4 text-xs text-red-300">
+                    ⚠ {aiError}
+                  </div>
+                )}
               </section>
 
               {/* Pairings */}
