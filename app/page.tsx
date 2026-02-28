@@ -355,6 +355,16 @@ function HomeContent() {
         </div>
       )}
 
+      {/* How This Works */}
+      <section className="mb-8 rounded border border-[var(--border)] bg-[var(--surface-alt)] p-4">
+        <h2 className="mb-2 text-lg font-semibold text-[var(--foreground)]">
+          How This Works
+        </h2>
+        <p className="text-sm leading-relaxed text-[var(--muted)]">
+          BootLanes analyzes your boot collection for cohesion and balance. Add your context, wardrobe palette, and boots to get a deterministic analysis of your collection's structure. Optionally, click "Get AI Style Insights" for personalized styling suggestions based on your profile.
+        </p>
+      </section>
+
       <div className="grid gap-8 lg:grid-cols-2">
         {/* ============================== */}
         {/* LEFT COLUMN: Input Sections */}
