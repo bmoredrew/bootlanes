@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { analyzeProfile } from "@/lib/engine/analyzeProfile";
+import { getAllPairings } from "@/lib/engine/getPairings";
 import { encodeProfile } from "@/lib/utils/encodeProfile";
 import { decodeProfile, createEmptyProfile } from "@/lib/utils/decodeProfile";
 import { formatLabel } from "@/lib/utils/formatLabel";
@@ -642,24 +643,24 @@ export default function Home() {
               </div>
             )}
           </section>
-
-          {/* Analyze Button */}
-          <button
-            onClick={handleAnalyze}
-            disabled={profile.items.length === 0}
-            className={`w-full rounded py-3 font-medium transition ${profile.items.length === 0
-              ? "cursor-not-allowed bg-[var(--surface-alt)] text-[var(--muted)]"
-              : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
-              }`}
-          >
-            Analyze Profile
-          </button>
         </div>
 
         {/* ============================== */}
         {/* RIGHT COLUMN: Output */}
         {/* ============================== */}
         <div>
+          {/* Analyze Button */}
+          <button
+            onClick={handleAnalyze}
+            disabled={profile.items.length === 0}
+            className={`mb-6 w-full rounded py-3 font-medium transition ${profile.items.length === 0
+              ? "cursor-not-allowed bg-[var(--surface-alt)] text-[var(--muted)]"
+              : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
+              }`}
+          >
+            Analyze Profile
+          </button>
+
           {analysisResult ? (
             <div className="sticky top-8 space-y-6">
               <h2 className="text-lg font-semibold text-[var(--foreground)]">Analysis</h2>
@@ -725,6 +726,41 @@ export default function Home() {
                 </p>
                 <p className="text-[var(--foreground)]">{analysisResult.suggestion.message}</p>
               </section>
+
+              {/* Pairings */}
+              {profile.items.length > 0 && (
+                <section>
+                  <h3 className="mb-3 text-xs font-medium uppercase tracking-wide text-[var(--muted)]">
+                    Pairing Ideas
+                  </h3>
+                  <div className="space-y-3">
+                    {getAllPairings(profile.items).map((pairing) => (
+                      <div
+                        key={pairing.bootId}
+                        className="rounded border border-[var(--border)] bg-[var(--surface)] p-3"
+                      >
+                        <p className="mb-2 text-sm font-medium text-[var(--foreground)]">
+                          {pairing.bootName}
+                        </p>
+                        <div className="space-y-1 text-xs">
+                          <p>
+                            <span className="text-[var(--muted)]">Tops: </span>
+                            <span className="text-[var(--foreground)]">
+                              {pairing.tops.map(formatLabel).join(", ")}
+                            </span>
+                          </p>
+                          <p>
+                            <span className="text-[var(--muted)]">Bottoms: </span>
+                            <span className="text-[var(--foreground)]">
+                              {pairing.bottoms.map(formatLabel).join(", ")}
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
           ) : (
             <div className="flex h-64 items-center justify-center rounded border border-dashed border-[var(--border)] text-[var(--muted)]">
